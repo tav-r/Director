@@ -1,0 +1,4 @@
+src/burp/*
+out/
+.idea/
+!src/burp/BurpExtender.scala
