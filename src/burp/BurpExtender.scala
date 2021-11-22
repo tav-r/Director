@@ -6,8 +6,6 @@ import li.tavr.Director.ParamChecker
 import java.io.PrintWriter
 
 class BurpExtender extends IBurpExtender {
-  var callbacks: IBurpExtenderCallbacks = null  // TODO: this has to go later
-  var helpers: IExtensionHelpers = null  // TODO: dito
 
   override def registerExtenderCallbacks(callbacks: IBurpExtenderCallbacks): Unit = {
     callbacks.setExtensionName("Director")

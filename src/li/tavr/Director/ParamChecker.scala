@@ -21,6 +21,8 @@ class ParamChecker(callbacks: IBurpExtenderCallbacks, helpers: IExtensionHelpers
   override def doPassiveScan(messageInfo: IHttpRequestResponse): java.util.List[IScanIssue] = {
     val req = helpers.analyzeRequest(messageInfo.getHttpService, messageInfo.getRequest)
 
+    if !req.getMethod.eq("GET") then return null
+
     val potential_redirect_param: List[IParameter] = redirect_params(req.getParameters.asScala toList)
 
     potential_redirect_param match {
