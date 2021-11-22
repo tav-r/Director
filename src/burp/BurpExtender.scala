@@ -1,15 +1,35 @@
 package burp
 
 import burp.{IBurpExtender, IBurpExtenderCallbacks, IExtensionHelpers}
-import li.tavr.Director.ParamChecker
+import li.tavr.Director.{doPassiveParamsScan,doPassiveJSScan}
 
 import java.io.PrintWriter
+import java.util
 
 class BurpExtender extends IBurpExtender {
 
   override def registerExtenderCallbacks(callbacks: IBurpExtenderCallbacks): Unit = {
     callbacks.setExtensionName("Director")
-    callbacks.registerScannerCheck(ParamChecker(callbacks, callbacks.getHelpers))
+
+    // register parameter scanner
+    callbacks.registerScannerCheck(new IScannerCheck {
+      override def doPassiveScan(baseRequestResponse: IHttpRequestResponse): util.List[IScanIssue]
+        = doPassiveParamsScan(callbacks.getHelpers)(baseRequestResponse)
+      override def doActiveScan(baseRequestResponse: IHttpRequestResponse,
+                                insertionPoint: IScannerInsertionPoint
+                               ): util.List[IScanIssue] = null
+      override def consolidateDuplicateIssues(existingIssue: IScanIssue, newIssue: IScanIssue): Int = 0
+    })
+
+    // register JavaScript scanner
+    callbacks.registerScannerCheck(new IScannerCheck {
+      override def doPassiveScan(baseRequestResponse: IHttpRequestResponse): util.List[IScanIssue]
+        = doPassiveJSScan(callbacks.getHelpers)(baseRequestResponse)
+      override def doActiveScan(baseRequestResponse: IHttpRequestResponse,
+                                insertionPoint: IScannerInsertionPoint
+                               ): util.List[IScanIssue] = null
+      override def consolidateDuplicateIssues(existingIssue: IScanIssue, newIssue: IScanIssue): Int = 0
+    })
 
     PrintWriter(callbacks.getStdout(), true).println(
      """@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@w@@@@@@@@@@@@@@@@@@@@@@@
