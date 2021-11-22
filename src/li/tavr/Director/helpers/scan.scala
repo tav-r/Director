@@ -12,9 +12,8 @@ def redirectParams(params: List[IParameter]): List[IParameter] = {
 }
 
 def javaScriptPatterns(body: String): List[String] = {
-  val pattern = ("((|\\w|\\.|;|\\})(location|location\\.host|location\\.hostname|location\\.href|location\\.pathname|location\\.search|"+
-    "location\\.protocol|element\\.srcdoc)\\w*=\\w*[^=\"'\\w]|(location\\.assign\\(|location\\.replace\\(|open\\(|"+
-    "XMLHttpRequest\\.open\\(|XMLHttpRequest\\.send\\(|jQuery\\.ajax\\(|\\$\\.ajax\\()[^\"'])").r
+  val pattern = ("(\"|')(returnto|return_to|goto|returnurl|returnuri|return_url|return_path|redirect|redirect_url" +
+    "|redirect_uri|r_url|rurl|locationurl|locationuri|checkout_url|next_url|nexturl|back_url|backurl)(\"|')").r
 
-  pattern findAllIn(body) toList
+  pattern findAllIn(body toLowerCase) toList
 }
