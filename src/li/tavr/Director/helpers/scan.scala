@@ -4,7 +4,7 @@ import burp.IParameter
 import scala.language.postfixOps
 
 def redirectParams(params: List[IParameter]): List[IParameter] = {
-  val pattern = ("^(back|go|goto|goback|return|returnto|return_to|returnurl|returnuri|return_url"+
+  val pattern = ("^(r|back|go|goto|goback|return|returnto|return_to|returnurl|returnuri|return_url"+
     "|return_path|redi|redirect|redirect_url|redirect_uri|r_url|rurl|locationurl|locati"+
     "onuri|next|dest|destination|checkout_url|continue|url|rurl)$").r
 

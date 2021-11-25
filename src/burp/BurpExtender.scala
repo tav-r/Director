@@ -14,7 +14,7 @@ class BurpExtender extends IBurpExtender {
     // register parameter scanner
     callbacks.registerScannerCheck(new IScannerCheck {
       override def doPassiveScan(baseRequestResponse: IHttpRequestResponse): util.List[IScanIssue]
-        = doPassiveParamsScan(callbacks.getHelpers)(baseRequestResponse)
+        = doPassiveParamsScan(callbacks)(baseRequestResponse)
       override def doActiveScan(baseRequestResponse: IHttpRequestResponse,
                                 insertionPoint: IScannerInsertionPoint
                                ): util.List[IScanIssue] = null
