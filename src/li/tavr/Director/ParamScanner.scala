@@ -14,7 +14,7 @@ def findParams(helpers: IExtensionHelpers)(reqs: List[IHttpRequestResponse], url
   reqs match {
     case List() => None
     case r::rs => if !helpers.analyzeRequest(r)
-      .getParameters.asScala.filter(q => url.contains(q.getValue)).isEmpty then {
+      .getParameters.asScala.filter(p => url.contains(p.getValue)).isEmpty then {
       Some(r)
     } else {
       findParams(helpers)(rs, url)
@@ -31,33 +31,31 @@ def doPassiveParamsScan(callbacks: IBurpExtenderCallbacks)
 
   val location_headers = res.getHeaders.asScala.filter(h => h.toLowerCase.startsWith("location"))
 
-  if !req.getMethod.eq("GET") || location_headers.isEmpty then {
-    return null
-  }
+  if location_headers.isEmpty then return null
 
   findParams(helpers)(
     callbacks.getProxyHistory.reverse
-    .toList.filter(r => helpers.analyzeRequest(r).getMethod eq "GET" )
-    .take(20),
+    .toList.filter(r => helpers.analyzeRequest(r).getMethod eq "GET" ).take(20),
     location_headers.head.split(":").toList.last.trim
   ) match {
     case None => null
-    case Some(r) => return List(new IScanIssue{
-      override def getConfidence: String = "Tentative"
-      override def getIssueBackground: String = "User-specified redirects may lead to insecure" +
-      " redirects if not properly validated"
-      override def getIssueType: Int = 0x00500100
-      override def getHttpMessages: Array[IHttpRequestResponse] = Array(r)
-      override def getHttpService: IHttpService = messageInfo.getHttpService
-      override def getIssueName: String = "User-specified Redirect"
-      override def getIssueDetail: String = "The URL uses parameters that seem to specify a redirect location:<br><ul>"
-      + s"<li>${helpers.analyzeRequest(r).getUrl.toString}</li></ul>"
-      override def getRemediationDetail: String = null
-      override def getSeverity: String = "Medium"
-      override def getUrl: URL = req.getUrl
-      override def getRemediationBackground: String = null
+    case Some(r) => {
+      val rParsed = helpers.analyzeRequest(r.getHttpService, r.getRequest)
+      return List(new IScanIssue{
+        override def getConfidence: String = "Tentative"
+        override def getIssueBackground: String = "User-specified redirects may lead to insecure" +
+          " redirects if not properly validated"
+        override def getIssueType: Int = 0x00500100
+        override def getHttpMessages: Array[IHttpRequestResponse] = Array(messageInfo)
+        override def getHttpService: IHttpService = messageInfo.getHttpService
+        override def getIssueName: String = "User-specified Redirect"
+        override def getIssueDetail: String = "The following URL seem to specify a redirect location:"
+          + s"<br><ul><li>${rParsed.getUrl.toString}</li></ul>"
+        override def getRemediationDetail: String = null
+        override def getSeverity: String = "Medium"
+        override def getUrl: URL = req.getUrl
+        override def getRemediationBackground: String = null
       }) asJava
+    }
   }
-
-  null
 }
